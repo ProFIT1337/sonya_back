@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  django_ikea:
+    build: .
+    command: gunicorn config.wsgi -w 4 -b 0.0.0.0:5000 --chdir=/usr/src/app/
+    volumes:
+      - .:/usr/src/app/
+      - ./media/:/usr/src/app/media
+      - ./staticfiles:/usr/src/app/staticfiles
+    env_file:
+      - ./.env.dev
+    restart: unless-stopped
+  nginx_kef:
+    build: ./compose/nginx
+    depends_on:
+      - django_ikea
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./front:/usr/src/app/front
+      - ./media:/usr/src/app/media
+      - ./staticfiles:/usr/src/app/staticfiles
+    restart: unless-stopped
